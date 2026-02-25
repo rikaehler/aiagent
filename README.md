@@ -1,0 +1,3 @@
+- first little cli ai agent in python
+- connects to google model api
+- submits user prompt and returns text response
