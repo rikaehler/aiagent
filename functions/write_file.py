@@ -8,7 +8,7 @@ def write_file(working_directory, file_path, content):
         # construct full path to target file
         target_file = os.path.normpath(os.path.join(working_dir_abs, file_path))
         
-        # check if target_dir is in within working_directory
+        # check if target_file is in within working_directory
         valid_target_dir = os.path.commonpath([working_dir_abs, target_file])
 
         if valid_target_dir != working_dir_abs:
