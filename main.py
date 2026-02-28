@@ -3,8 +3,7 @@ import argparse
 from dotenv import load_dotenv # type: ignore
 from google import genai # type: ignore
 from google.genai import types # type: ignore
-
-
+from prompts import *
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -31,7 +30,8 @@ def main():
     # generate content from model and put in into response
     response = client.models.generate_content(
         model='gemini-2.5-flash', 
-        contents=messages
+        contents=messages,
+        config=types.GenerateContentConfig(system_instruction=system_prompt, temperature=0)
     )
     # check for usage tokens and put then in x and y
     if response.usage_metadata is None:
