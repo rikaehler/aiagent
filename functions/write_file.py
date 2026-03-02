@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 def write_file(working_directory, file_path, content):
     try:
@@ -28,3 +29,24 @@ def write_file(working_directory, file_path, content):
     # catch unexpected system or permission errors
     except Exception as e:
         return f"Error: {str(e)}"
+    
+
+# building a schema for function write_file() - tells LLM how the function should be called
+schema_write_file = types.FunctionDeclaration(
+    name = "write_file",
+    description = "Writes text content to a specified file path, creating the file if it doesn't exist or overwriting it if it does.",
+    parameters = types.Schema(
+        type = types.Type.OBJECT,
+        properties = {
+            "file_path": types.Schema(
+                type = types.Type.STRING,
+                description = "The path to the file where content should be written, relative to the working directory.",
+            ),
+            "content": types.Schema(
+                type = types.Type.STRING,
+                description = "The text content to write into the file.",
+            ),
+        },
+        required = ["file_path", "content"], # both are strictly necessary to perform a write operation
+    ),
+)

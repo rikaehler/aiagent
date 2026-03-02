@@ -1,5 +1,7 @@
 import os
 from config import *
+from google.genai import types
+
 
 def get_file_content(working_directory, file_path):
     try:
@@ -31,3 +33,19 @@ def get_file_content(working_directory, file_path):
     # catch unexpected system or permission errors
     except Exception as e:
         return f"Error: {str(e)}"
+    
+# building a schema for function get_file_content() - tells LLM how the function should be called
+schema_get_file_content = types.FunctionDeclaration(
+    name = "get_file_content",
+    description = "Reads and returns the text content of a specified file.",
+    parameters = types.Schema(
+        type = types.Type.OBJECT,
+        properties = {
+            "file_path": types.Schema(
+                type = types.Type.STRING,
+                description = "The path to the file to be read, relative to the working directory.",
+            ),
+        },
+        required = ["file_path"],
+    ),
+)

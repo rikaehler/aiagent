@@ -1,5 +1,4 @@
 import os
-from google import genai # type: ignore
 from google.genai import types # type: ignore
 
 def get_files_info(working_directory, directory="."):
