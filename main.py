@@ -4,6 +4,7 @@ from dotenv import load_dotenv # type: ignore
 from google import genai # type: ignore
 from google.genai import types # type: ignore
 from prompts import *
+from functions.call_function import available_functions
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -31,7 +32,9 @@ def main():
     response = client.models.generate_content(
         model='gemini-2.5-flash', 
         contents=messages,
-        config=types.GenerateContentConfig(system_instruction=system_prompt, temperature=0)
+        config=types.GenerateContentConfig(
+            tools=[available_functions],
+            system_instruction=system_prompt)
     )
     # check for usage tokens and put then in x and y
     if response.usage_metadata is None:
@@ -49,8 +52,16 @@ def main():
         print(f"Prompt tokens: {prompt_tokens}")
         print(f"Response tokens: {response_tokens}")
     
-    # always print response
-    print(f" Response: {response.text}")
+    # check if model called any functions and print them by name and args
+    if response.function_calls:
+        print("\n--- Function Calls as requested by AI Agent ---")
+        for call in response.function_calls:
+            print(f"Calling function: {call.name}({call.args})")
+        print("--------------------------------------\n")
+
+    # otherwise print JUST response, if no functions were called
+    else:
+        print(f" Response: {response.text}")
 
 if __name__ == "__main__":
     main()
