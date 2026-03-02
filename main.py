@@ -52,16 +52,14 @@ def main():
         print(f"Prompt tokens: {prompt_tokens}")
         print(f"Response tokens: {response_tokens}")
     
-    # check if model called any functions and print them by name and args
-    if response.function_calls:
-        print("\n--- Function Calls as requested by AI Agent ---")
-        for call in response.function_calls:
-            print(f"Calling function: {call.name}({call.args})")
-        print("--------------------------------------\n")
-
-    # otherwise print JUST response, if no functions were called
-    else:
+    # print response if not function calls were made Ai Agent
+    if not response.function_calls:
         print(f" Response: {response.text}")
+        return
+    
+    # print function call with name and args
+    for function_call in response.function_calls:
+        print(f"Calling function: {function_call.name}({function_call.args})")
 
 if __name__ == "__main__":
     main()
