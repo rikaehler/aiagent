@@ -4,13 +4,13 @@ from dotenv import load_dotenv # type: ignore
 from google import genai # type: ignore
 from google.genai import types # type: ignore
 from prompts import *
-from functions.call_function import available_functions
+from functions.call_function import available_functions, call_function
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
 if api_key is None:
     raise RuntimeError(
-        "MY_API_KEY not found. Please ensure it is defined in your .env file "
+        "API_KEY not found. Please ensure it is defined in your .env file "
             "and that the file is in the root directory."
     )
 
@@ -57,9 +57,32 @@ def main():
         print(f" Response: {response.text}")
         return
     
-    # print function call with name and args
+    # list to hold successfully validated function results
+    function_results = []
+    
+    # iterate over the function call requested by the model
     for function_call in response.function_calls:
-        print(f"Calling function: {function_call.name}({function_call.args})")
+        function_call_result = call_function(function_call, verbose=args.verbose)
+
+        # ensure parts list is not empty
+        if not function_call_result.parts:
+            raise RuntimeError(f"Error: Function call result for {function_call.name} has no parts.")
+         
+        first_part = function_call_result.parts[0]
+
+        if first_part.function_response is None:
+            raise RuntimeError(f"Error: Part for {function_call.name} is missing 'function_response'.")
+        if first_part.function_response.response is None:
+            raise RuntimeError(f"Error: Function response for {function_call.name} is missing 'response' data.")
+        
+        function_results.append(first_part)
+
+        if args.verbose:
+            print(f"-> {first_part.function_response.response}")
+
+    # print function call with name and args
+    #for function_call in response.function_calls:
+    #    print(f"Calling function: {function_call.name}({function_call.args})")
 
 if __name__ == "__main__":
     main()
